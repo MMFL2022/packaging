@@ -3,10 +3,10 @@ on:
   workflow_dispatch:
     inputs:
       wkhtmltopdf_ref:
-        description: 'Branch/Tag to use from the wkhtmltopdf/wkhtmltopdf repository'
+        description: 'Branch/Tag to use from the MMFL2022/wkhtmltopdf repository'
         required: true
       packaging_release:
-        description: 'Release to create in wkhtmltopdf/packaging repository'
+        description: 'Release to create in MMFL2022/packaging repository'
         required: true
       packaging_iteration:
         description: 'Iteration (useful for tagged releases)'
@@ -56,7 +56,7 @@ jobs:
       - name: checkout wkhtmltopdf with submodules
         uses: actions/checkout@v2
         with:
-          repository: wkhtmltopdf/wkhtmltopdf
+          repository: MMFL2022/wkhtmltopdf
           path: wkhtmltopdf
           submodules: true
           ref: ${{ github.event.inputs.wkhtmltopdf_ref }}
