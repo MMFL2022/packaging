@@ -59,8 +59,8 @@ jobs:
     strategy:
       matrix:
         package_target:
-          -x64
-          -x86
+          - x64
+          - x86
     steps:
       - name: setup build environment
         run: |
