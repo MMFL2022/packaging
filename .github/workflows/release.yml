@@ -19,7 +19,7 @@ jobs:
     strategy:
       matrix:
         package_target:
-          - buster-ppc64el
+          - buster-amd64
       fail-fast: false
     steps:
       - name: configure docker
