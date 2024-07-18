@@ -1,0 +1,89 @@
+name: Build wkhtmltopdf
+on:
+  workflow_dispatch:
+    inputs:
+      wkhtmltopdf_ref:
+        description: 'Branch/Tag to use from the MMFL2022/wkhtmltopdf repository'
+        default: 'master'
+        required: true
+      packaging_release:
+        description: 'Release to create in MMFL2022/packaging repository'
+        required: true
+      packaging_iteration:
+        description: 'Iteration (useful for tagged releases)'
+        default: '1'
+        required: true
+
+jobs:
+  linux:
+    name: wkhtmltopdf on Linux
+    runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        # 64-bit x86
+        buster_amd64:
+          target: buster-amd64
+        # 32-bit x86
+        #buster_i386:
+          #target: buster-i386
+      # 64-bit ARM
+        #buster_arm64:
+          #target: buster-arm64
+      # 32-bit ARM
+        #buster_raspberrypi:
+          #target: raspberrypi.buster-armhf
+      # PPC
+        #buster_ppc64el:
+          #target: buster-ppc64el
+    fail-fast: false
+    steps:
+      - name: setup build environment
+        run: |
+          echo '{ "experimental": true }' | sudo tee /etc/docker/daemon.json
+          sudo systemctl restart docker
+          python build docker-images $(target)
+      - name: clone wkhtmltopdf
+        run: |
+          git clone --recurse-submodules https://github.com/MMFL2022/wkhtmltopdf.git
+          cd wkhtmltopdf && git checkout ${{ github.event.inputs.wkhtmltopdf_ref }} && git submodule update
+      - name: build package
+        run: python build package-docker --clean --iteration ${{ github.event.inputs.packaging_iteration }} ${{ matrix.package_target }} wkhtmltopdf
+      - uses: softprops/action-gh-release@v0.1.14
+        with:
+          name: ${{ github.event.inputs.packaging_release }}
+          tag_name: ${{ github.event.inputs.packaging_release }}-${{ github.event.inputs.packaging_iteration }}
+          target_commitish: ${{ github.sha }}
+          files: "packaging/targets/wkhtmltox*.*"
+          fail_on_unmatched_files: false
+          draft: true
+          body: All packages were built and uploaded automatically as a part of [this run](${{ github.event.repository.html_url }}/actions/runs/${{ github.run_id }}), using this [wkhtmltopdf branch/tag](https://github.com/MMFL2022/wkhtmltopdf/tree/${{ github.event.inputs.wkhtmltopdf_ref }}).
+  windows:
+    name: wkhtmltopdf on Windows
+    runs-on: windows-2019
+    strategy:
+      matrix:
+        win64:
+          target: msvc2015-win64
+        win32:
+          target: msvc2015-win32
+    steps:
+      - name: setup build environment
+        run: |
+          choco install -yr --no-progress vcbuildtools -ia "/Full"
+          pip install -q conan
+          cmd /c attrib "C:\Program Files (x86)\Windows Kits\10\include\wdf" +H
+      - name: clone wkhtmltopdf
+        run: |
+          git clone --recurse-submodules https://github.com/MMFL2022/wkhtmltopdf.git
+          cd wkhtmltopdf && git checkout ${{ github.event.inputs.wkhtmltopdf_ref }} && git submodule update
+      - name: build package
+        run: python build vagrant ${{ matrix.package_target }} --version - - --iteration ${{ github.event.inputs.packaging_iteration }} wkhtmltopdf
+      - uses: softprops/action-gh-release@v0.1.14
+        with:
+          name: ${{ github.event.inputs.packaging_release }}
+          tag_name: ${{ github.event.inputs.packaging_release }}-${{ github.event.inputs.packaging_iteration }}
+          target_commitish: ${{ github.sha }}
+          files: "packaging/targets/wkhtmltox*.*"
+          fail_on_unmatched_files: false
+          draft: true
+          body: All packages were built and uploaded automatically as a part of [this run](${{ github.event.repository.html_url }}/actions/runs/${{ github.run_id }}), using this [wkhtmltopdf branch/tag](https://github.com/MMFL2022/wkhtmltopdf/tree/${{ github.event.inputs.wkhtmltopdf_ref }}).
