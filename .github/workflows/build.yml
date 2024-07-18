@@ -22,7 +22,7 @@ jobs:
       matrix:
         package_target:
           # 64-bit x86
-          #- buster-amd64
+          - buster-amd64
           # 32-bit x86
           #- buster-i386
           # 64-bit ARM
