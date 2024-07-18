@@ -20,21 +20,17 @@ jobs:
     runs-on: ubuntu-20.04
     strategy:
       matrix:
-        # 64-bit x86
-        buster_amd64:
-          target: buster-amd64
-        # 32-bit x86
-        #buster_i386:
-          #target: buster-i386
-      # 64-bit ARM
-        #buster_arm64:
-          #target: buster-arm64
-      # 32-bit ARM
-        #buster_raspberrypi:
-          #target: raspberrypi.buster-armhf
-      # PPC
-        #buster_ppc64el:
-          #target: buster-ppc64el
+        package_target:
+          # 64-bit x86
+          #- buster-amd64
+          # 32-bit x86
+          #- buster-i386
+          # 64-bit ARM
+          #- buster-arm64
+          # 32-bit ARM
+          #- raspberrypi.buster-armhf
+          # PPC
+          #- buster-ppc64el
     fail-fast: false
     steps:
       - name: setup build environment
@@ -62,10 +58,9 @@ jobs:
     runs-on: windows-2019
     strategy:
       matrix:
-        win64:
-          target: msvc2015-win64
-        win32:
-          target: msvc2015-win32
+        package_target:
+          -msvc2015-win64
+          -msvc2015-win32
     steps:
       - name: setup build environment
         run: |
