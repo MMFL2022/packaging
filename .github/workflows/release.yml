@@ -22,6 +22,8 @@ jobs:
       matrix:
         package_target:
           - buster-amd64
+          - mxe-cross-win32
+          - mxe-cross-win64
       fail-fast: false
     steps:
       - name: configure docker
