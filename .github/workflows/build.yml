@@ -65,8 +65,7 @@ jobs:
     strategy:
       matrix:
         package_target:
-          - msvc2015-win64
-          - msvc2015-win86
+          - windows
     steps:
       - name: setup build environment
         run: |
