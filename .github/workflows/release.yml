@@ -4,9 +4,11 @@ on:
     inputs:
       wkhtmltopdf_ref:
         description: 'Branch/Tag to use from the MMFL2022/wkhtmltopdf repository'
+        default: master
         required: true
       packaging_release:
         description: 'Release to create in MMFL2022/packaging repository'
+        default: 0.12.7
         required: true
       packaging_iteration:
         description: 'Iteration (useful for tagged releases)'
