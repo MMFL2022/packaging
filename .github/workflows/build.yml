@@ -34,16 +34,22 @@ jobs:
       fail-fast: false
     steps:
       - name: setup build environment
-        run: |
+        run:  |
           echo '{ "experimental": true }' | sudo tee /etc/docker/daemon.json
           sudo systemctl restart docker
-          python build docker-images $(target)
-      - name: clone wkhtmltopdf
-        run: |
-          git clone --recurse-submodules https://github.com/MMFL2022/wkhtmltopdf.git
-          cd wkhtmltopdf && git checkout ${{ github.event.inputs.wkhtmltopdf_ref }} && git submodule update
+      - name: checkout packaging
+        uses: actions/checkout@v2
+        with:
+          path: packaging
+      - name: checkout wkhtmltopdf with submodules
+        uses: actions/checkout@v2
+        with:
+          repository: MMFL2022/wkhtmltopdf
+          path: wkhtmltopdf
+          submodules: true
+          ref: ${{ github.event.inputs.wkhtmltopdf_ref }}
       - name: build package
-        run: python build package-docker --clean --iteration ${{ github.event.inputs.packaging_iteration }} ${{ matrix.package_target }} wkhtmltopdf
+        run: cd packaging && python3 ./build package-docker --clean --iteration ${{ github.event.inputs.packaging_iteration }} ${{ matrix.package_target }} ../wkhtmltopdf
       - uses: softprops/action-gh-release@v0.1.14
         with:
           name: ${{ github.event.inputs.packaging_release }}
@@ -67,12 +73,19 @@ jobs:
           choco install -yr --no-progress vcbuildtools -ia "/Full"
           pip install -q conan
           cmd /c attrib "C:\Program Files (x86)\Windows Kits\10\include\wdf" +H
-      - name: clone wkhtmltopdf
-        run: |
-          git clone --recurse-submodules https://github.com/MMFL2022/wkhtmltopdf.git
-          cd wkhtmltopdf && git checkout ${{ github.event.inputs.wkhtmltopdf_ref }} && git submodule update
+      - name: checkout packaging
+        uses: actions/checkout@v2
+        with:
+          path: packaging
+      - name: checkout wkhtmltopdf with submodules
+        uses: actions/checkout@v2
+        with:
+          repository: MMFL2022/wkhtmltopdf
+          path: wkhtmltopdf
+          submodules: true
+          ref: ${{ github.event.inputs.wkhtmltopdf_ref }}
       - name: build package
-        run: python build vagrant ${{ matrix.package_target }} --version - - --iteration ${{ github.event.inputs.packaging_iteration }} wkhtmltopdf
+        run: cd packaging && python build vagrant ${{ matrix.package_target }} --version - - --iteration ${{ github.event.inputs.packaging_iteration }} wkhtmltopdf
       - uses: softprops/action-gh-release@v0.1.14
         with:
           name: ${{ github.event.inputs.packaging_release }}
